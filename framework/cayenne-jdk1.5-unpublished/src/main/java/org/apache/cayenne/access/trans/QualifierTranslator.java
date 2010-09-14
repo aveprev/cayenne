@@ -392,9 +392,6 @@ public class QualifierTranslator extends QueryAssemblerHelper implements Travers
         catch (NoSuchFieldException e) {
             return null;
         }
-        catch (IllegalArgumentException e) {
-            return null;
-        }
         catch (IllegalAccessException e) {
             return null;
         }
