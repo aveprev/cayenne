@@ -27,13 +27,13 @@ import org.apache.cayenne.di.Inject;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.test.jdbc.DBHelper;
 import org.apache.cayenne.test.jdbc.TableHelper;
-import org.apache.cayenne.testdo.enumtest.User;
-import org.apache.cayenne.testdo.enumtest.UserType;
+import org.apache.cayenne.testdo.consttest.User;
+import org.apache.cayenne.testdo.consttest.UserType;
 import org.apache.cayenne.unit.di.server.ServerCase;
 import org.apache.cayenne.unit.di.server.UseServerRuntime;
 
-@UseServerRuntime("cayenne-enum.xml")
-public class EnumQueryTest extends ServerCase {
+@UseServerRuntime("cayenne-const.xml")
+public class ConstQueryTest extends ServerCase {
 
     @Inject
     protected ObjectContext context;
@@ -48,9 +48,9 @@ public class EnumQueryTest extends ServerCase {
 
     private void createUserDataSet() throws Exception {
         TableHelper tableHelper = new TableHelper(dbHelper, "USER");
-        tableHelper.setColumns("ID", "NAME", "TYPE");
-        tableHelper.insert(1, "user1", 0);
-        tableHelper.insert(2, "user2", 1);
+        tableHelper.setColumns("ID", "NAME", "STATUS", "TYPE");
+        tableHelper.insert(1, "user1", 1, 0);
+        tableHelper.insert(2, "user2", null, 1);
     }
 
     public void testSelectByEnumValue() throws Exception {
@@ -67,10 +67,20 @@ public class EnumQueryTest extends ServerCase {
     public void testSelectByEnumValueSpecifiedAsConstant() throws Exception {
         createUserDataSet();
         
-        Expression expr = Expression.fromString("type = org.apache.cayenne.testdo.enumtest.UserType.ADMIN");
+        Expression expr = Expression.fromString("type = org.apache.cayenne.testdo.consttest.UserType.ADMIN");
         SelectQuery query = new SelectQuery(User.class, expr);
         List users = context.performQuery(query);
         assertEquals(1, users.size());
         assertEquals("user2", ((User)users.get(0)).getName());
+    }
+    
+    public void testSelectByConstValue() throws Exception {
+        createUserDataSet();
+        
+        Expression expr = Expression.fromString("status = org.apache.cayenne.testdo.consttest.UserStatus.DEFAULT");
+        SelectQuery query = new SelectQuery(User.class, expr);
+        List users = context.performQuery(query);
+        assertEquals(1, users.size());
+        assertEquals("user1", ((User)users.get(0)).getName());
     }
 }

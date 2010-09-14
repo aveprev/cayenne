@@ -1,4 +1,4 @@
-package org.apache.cayenne.testdo.enumtest.auto;
+package org.apache.cayenne.testdo.consttest.auto;
 
 
 
@@ -8,5 +8,5 @@ package org.apache.cayenne.testdo.enumtest.auto;
  * since it may be overwritten next time code is regenerated.
  * If you need to make any customizations, please use subclass.
  */
-public class _EnumMap {
+public class _Const {
 }

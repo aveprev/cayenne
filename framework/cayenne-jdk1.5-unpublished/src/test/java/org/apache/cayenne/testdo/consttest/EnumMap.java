@@ -1,6 +1,6 @@
-package org.apache.cayenne.testdo.enumtest;
+package org.apache.cayenne.testdo.consttest;
 
-import org.apache.cayenne.testdo.enumtest.auto._EnumMap;
+import org.apache.cayenne.testdo.consttest.auto._EnumMap;
 
 public class EnumMap extends _EnumMap {
 
