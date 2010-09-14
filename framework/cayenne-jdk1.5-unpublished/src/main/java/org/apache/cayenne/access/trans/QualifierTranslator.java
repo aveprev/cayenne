@@ -20,6 +20,7 @@
 package org.apache.cayenne.access.trans;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import org.apache.cayenne.query.Query;
 import org.apache.cayenne.reflect.ClassDescriptor;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Translates query qualifier to SQL. Used as a helper class by query translators.
@@ -372,11 +374,44 @@ public class QualifierTranslator extends QueryAssemblerHelper implements Travers
         }
     }
 
+    private Object getConstValue(String path) {
+        String[] pair = StringUtils.reverse(path).split("\\.", 2);
+        if (pair.length != 2) {
+            return null;
+        }
+        String constName = StringUtils.reverse(pair[0]);
+        String className = StringUtils.reverse(pair[1]);
+        try {
+            Class<?> klass = getClass().getClassLoader().loadClass(className);
+            Field constField = klass.getField(constName);
+            return constField.get(null);
+        }
+        catch (ClassNotFoundException e) {
+            return null;
+        }
+        catch (NoSuchFieldException e) {
+            return null;
+        }
+        catch (IllegalArgumentException e) {
+            return null;
+        }
+        catch (IllegalAccessException e) {
+            return null;
+        }
+    }
+
     public void objectNode(Object leaf, Expression parentNode) {
 
         try {
             if (parentNode.getType() == Expression.OBJ_PATH) {
-                appendObjPath(parentNode);
+                Object constValue;
+                if (leaf instanceof String
+                        && (constValue = getConstValue((String) leaf)) != null) {
+                    appendLiteral(constValue, paramsDbType(parentNode), parentNode);
+                }
+                else {
+                    appendObjPath(parentNode);
+                }
             }
             else if (parentNode.getType() == Expression.DB_PATH) {
                 appendDbPath(parentNode);
