@@ -41,6 +41,7 @@ import org.apache.cayenne.map.ObjEntity;
 import org.apache.cayenne.query.QualifiedQuery;
 import org.apache.cayenne.query.Query;
 import org.apache.cayenne.reflect.ClassDescriptor;
+import org.apache.cayenne.util.Util;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
@@ -384,7 +385,7 @@ public class QualifierTranslator extends QueryAssemblerHelper implements Travers
         String className = StringUtils.reverse(pair[1]);
         Object constValue;
         try {
-            Class<?> klass = getClass().getClassLoader().loadClass(className);
+            Class<?> klass = Util.getJavaClass(className);
             Field constField = klass.getField(constName);
             constValue = constField.get(null);
         }
