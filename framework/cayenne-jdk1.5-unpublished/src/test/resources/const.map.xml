@@ -13,6 +13,6 @@
 	<obj-entity name="User" className="org.apache.cayenne.testdo.consttest.User" dbEntityName="USER">
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
 		<obj-attribute name="status" type="java.lang.Integer" db-attribute-path="STATUS"/>
-		<obj-attribute name="type" type="org.apache.cayenne.testdo.costtest.UserType" db-attribute-path="TYPE"/>
+		<obj-attribute name="type" type="org.apache.cayenne.testdo.consttest.UserType" db-attribute-path="TYPE"/>
 	</obj-entity>
 </data-map>
