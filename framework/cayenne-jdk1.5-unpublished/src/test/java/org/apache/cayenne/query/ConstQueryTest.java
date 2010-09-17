@@ -27,8 +27,8 @@ import org.apache.cayenne.di.Inject;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.test.jdbc.DBHelper;
 import org.apache.cayenne.test.jdbc.TableHelper;
-import org.apache.cayenne.testdo.consttest.User;
-import org.apache.cayenne.testdo.consttest.UserType;
+import org.apache.cayenne.testdo.consttest.Const1Entity;
+import org.apache.cayenne.testdo.consttest.Const1Type;
 import org.apache.cayenne.unit.di.server.ServerCase;
 import org.apache.cayenne.unit.di.server.UseServerRuntime;
 
@@ -43,44 +43,46 @@ public class ConstQueryTest extends ServerCase {
 
     @Override
     protected void setUpAfterInjection() throws Exception {
-        dbHelper.deleteAll("USER");
+        dbHelper.deleteAll("CONST1_ENTITY");
     }
 
-    private void createUserDataSet() throws Exception {
-        TableHelper tableHelper = new TableHelper(dbHelper, "USER");
+    private void createConst1EntityDataSet() throws Exception {
+        TableHelper tableHelper = new TableHelper(dbHelper, "CONST1_ENTITY");
         tableHelper.setColumns("ID", "NAME", "STATUS", "TYPE");
-        tableHelper.insert(1, "user1", 1, 0);
-        tableHelper.insert(2, "user2", null, 1);
+        tableHelper.insert(1, "entity1", 1, 0);
+        tableHelper.insert(2, "entity2", null, 1);
     }
 
     public void testSelectByEnumValue() throws Exception {
-        createUserDataSet();
+        createConst1EntityDataSet();
 
         Expression expr = Expression.fromString("type = $type");
-        SelectQuery query = new SelectQuery(User.class, expr)
-                .queryWithParameters(singletonMap("type", UserType.ORDINARY));
+        SelectQuery query = new SelectQuery(Const1Entity.class, expr)
+                .queryWithParameters(singletonMap("type", Const1Type.ORDINARY));
         List users = context.performQuery(query);
         assertEquals(1, users.size());
-        assertEquals("user1", ((User)users.get(0)).getName());
+        assertEquals("entity1", ((Const1Entity) users.get(0)).getName());
     }
-    
+
     public void testSelectByEnumValueSpecifiedAsConstant() throws Exception {
-        createUserDataSet();
-        
-        Expression expr = Expression.fromString("type = org.apache.cayenne.testdo.consttest.UserType.ADMIN");
-        SelectQuery query = new SelectQuery(User.class, expr);
+        createConst1EntityDataSet();
+
+        Expression expr = Expression
+                .fromString("type = org.apache.cayenne.testdo.consttest.Const1Type.ADMIN");
+        SelectQuery query = new SelectQuery(Const1Entity.class, expr);
         List users = context.performQuery(query);
         assertEquals(1, users.size());
-        assertEquals("user2", ((User)users.get(0)).getName());
+        assertEquals("entity2", ((Const1Entity) users.get(0)).getName());
     }
-    
+
     public void testSelectByConstValue() throws Exception {
-        createUserDataSet();
-        
-        Expression expr = Expression.fromString("status = org.apache.cayenne.testdo.consttest.UserStatus.DEFAULT");
-        SelectQuery query = new SelectQuery(User.class, expr);
+        createConst1EntityDataSet();
+
+        Expression expr = Expression
+                .fromString("status = org.apache.cayenne.testdo.consttest.Const1Status.DEFAULT");
+        SelectQuery query = new SelectQuery(Const1Entity.class, expr);
         List users = context.performQuery(query);
         assertEquals(1, users.size());
-        assertEquals("user1", ((User)users.get(0)).getName());
+        assertEquals("entity1", ((Const1Entity) users.get(0)).getName());
     }
 }

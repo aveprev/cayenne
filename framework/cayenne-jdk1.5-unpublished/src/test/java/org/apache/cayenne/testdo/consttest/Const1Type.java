@@ -19,6 +19,6 @@
 package org.apache.cayenne.testdo.consttest;
 
 
-public enum UserType {
+public enum Const1Type {
     ORDINARY, ADMIN
 }

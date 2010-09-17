@@ -19,7 +19,7 @@
 package org.apache.cayenne.testdo.consttest;
 
 
-public interface UserStatus {
+public interface Const1Status {
     Integer DEFAULT = 1;
     Integer NULL = null;
 }
