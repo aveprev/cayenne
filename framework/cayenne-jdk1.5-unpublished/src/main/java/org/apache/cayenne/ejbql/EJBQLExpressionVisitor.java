@@ -275,7 +275,9 @@ public interface EJBQLExpressionVisitor {
      *            visited.
      */
     boolean visitPath(EJBQLExpression expression, int finishedChildIndex);
-    
+
+    boolean visitConst(EJBQLExpression expression);
+
     boolean visitDbPath(EJBQLExpression expression, int finishedChildIndex);
 
     boolean visitPatternValue(EJBQLExpression expression);

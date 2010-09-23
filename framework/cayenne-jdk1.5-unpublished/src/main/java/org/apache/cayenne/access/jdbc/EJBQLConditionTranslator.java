@@ -32,6 +32,7 @@ import org.apache.cayenne.ejbql.EJBQLBaseVisitor;
 import org.apache.cayenne.ejbql.EJBQLException;
 import org.apache.cayenne.ejbql.EJBQLExpression;
 import org.apache.cayenne.ejbql.parser.AggregateConditionNode;
+import org.apache.cayenne.ejbql.parser.EJBQLConstant;
 import org.apache.cayenne.ejbql.parser.EJBQLDecimalLiteral;
 import org.apache.cayenne.ejbql.parser.EJBQLEquals;
 import org.apache.cayenne.ejbql.parser.EJBQLIdentificationVariable;
@@ -682,6 +683,13 @@ public class EJBQLConditionTranslator extends EJBQLBaseVisitor {
             }
         });
         return false;
+    }
+
+    @Override
+    public boolean visitConst(EJBQLExpression expression) {
+        String var = context.bindParameter(((EJBQLConstant) expression).getValue());
+        context.append(" #bind($").append(var).append(")");
+        return true;
     }
 
     @Override
