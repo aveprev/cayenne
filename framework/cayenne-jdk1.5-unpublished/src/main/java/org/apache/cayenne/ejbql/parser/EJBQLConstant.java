@@ -27,6 +27,7 @@ public class EJBQLConstant extends SimpleNode {
 
     public EJBQLConstant(EJBQLPath pathExpression, String path, Object value) {
         super(pathExpression.id);
+        this.parent = pathExpression.parent;
         this.path = path;
         this.value = value;
     }

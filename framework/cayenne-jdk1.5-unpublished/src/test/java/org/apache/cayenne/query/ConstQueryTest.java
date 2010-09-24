@@ -109,7 +109,7 @@ public class ConstQueryTest extends ServerCase {
 
         EJBQLQuery query = new EJBQLQuery(
                 "SELECT e FROM Const1Entity e WHERE e.type = :t");
-        query.setParameter("t", Const1Type.ADMIN);
+        query.setParameter("t", Const1Type.ORDINARY);
         List entities = context.performQuery(query);
         assertEquals(1, entities.size());
         assertEquals("entity1", ((Const1Entity) entities.get(0)).getName());
@@ -119,7 +119,7 @@ public class ConstQueryTest extends ServerCase {
         createConst1EntityDataSet();
 
         EJBQLQuery query = new EJBQLQuery(
-                "SELECT e FROM Const1Entity e WHERE e.type = org.apache.cayenne.testdo.consttest.Const1Type.ADMIN");
+                "SELECT e FROM Const1Entity e WHERE e.type = org.apache.cayenne.testdo.consttest.Const1Type.ORDINARY");
         List entities = context.performQuery(query);
         assertEquals(1, entities.size());
         assertEquals("entity1", ((Const1Entity) entities.get(0)).getName());
