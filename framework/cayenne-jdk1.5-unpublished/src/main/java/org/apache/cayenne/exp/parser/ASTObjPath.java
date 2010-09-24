@@ -20,7 +20,6 @@
 package org.apache.cayenne.exp.parser;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 
 import org.apache.cayenne.CayenneRuntimeException;
 import org.apache.cayenne.DataObject;
@@ -30,7 +29,6 @@ import org.apache.cayenne.map.Entity;
 import org.apache.cayenne.map.ObjEntity;
 import org.apache.cayenne.reflect.PropertyUtils;
 import org.apache.cayenne.util.Util;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
