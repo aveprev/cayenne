@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  ****************************************************************/
-package org.apache.cayenne.access;
+package org.apache.cayenne.log;
 
 import java.util.HashMap;
 import java.util.Iterator;
