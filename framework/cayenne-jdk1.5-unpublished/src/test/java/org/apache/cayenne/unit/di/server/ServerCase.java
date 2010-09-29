@@ -18,9 +18,11 @@
  ****************************************************************/
 package org.apache.cayenne.unit.di.server;
 
+import org.apache.cayenne.access.QueryLogger;
 import org.apache.cayenne.di.DIBootstrap;
 import org.apache.cayenne.di.Injector;
 import org.apache.cayenne.di.spi.DefaultScope;
+import org.apache.cayenne.log.CommonsJdbcEventLogger;
 import org.apache.cayenne.unit.CayenneResources;
 import org.apache.cayenne.unit.di.DICase;
 
@@ -39,6 +41,8 @@ public class ServerCase extends DICase {
     private static final Injector injector;
 
     static {
+        CommonsJdbcEventLogger logger = new CommonsJdbcEventLogger();
+        QueryLogger.setLogger(logger);
         CayenneResources resources = CayenneResources.getResources();
         DefaultScope testScope = new DefaultScope();
         injector = DIBootstrap.createInjector(new ServerCaseModule(resources, testScope));

@@ -47,7 +47,7 @@ public class DefaultDbAdapterFactory implements DbAdapterFactory {
     public static final String DETECTORS_LIST = "org.apache.cayenne.configuration.server.DefaultDbAdapterFactory.detectors";
 
     @Inject
-    private JdbcEventLogger logger;
+    private JdbcEventLogger jdbcEventLogger;
 
     @Inject
     protected AdhocObjectFactory objectFactory;
@@ -117,7 +117,7 @@ public class DefaultDbAdapterFactory implements DbAdapterFactory {
             DbAdapter adapter = detector.createAdapter(metaData);
 
             if (adapter != null) {
-                logger.log("Detected and installed adapter: "
+                jdbcEventLogger.log("Detected and installed adapter: "
                         + adapter.getClass().getName());
                 return adapter;
             }
@@ -127,7 +127,7 @@ public class DefaultDbAdapterFactory implements DbAdapterFactory {
     }
 
     protected DbAdapter defaultAdapter() {
-        logger.log("Failed to detect database type, using generic adapter");
+        jdbcEventLogger.log("Failed to detect database type, using generic adapter");
         return new JdbcAdapter();
     }
 }

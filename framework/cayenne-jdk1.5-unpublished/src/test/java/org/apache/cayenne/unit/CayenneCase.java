@@ -28,8 +28,10 @@ import junit.framework.TestCase;
 import org.apache.cayenne.CayenneRuntimeException;
 import org.apache.cayenne.access.DataContext;
 import org.apache.cayenne.access.DataNode;
+import org.apache.cayenne.access.QueryLogger;
 import org.apache.cayenne.access.UnitTestDomain;
 import org.apache.cayenne.conn.DataSourceInfo;
+import org.apache.cayenne.log.CommonsJdbcEventLogger;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.map.DbEntity;
 import org.apache.cayenne.map.ObjEntity;
@@ -48,6 +50,7 @@ public abstract class CayenneCase extends TestCase {
     protected AccessStack accessStack;
 
     public CayenneCase() {
+        QueryLogger.setLogger(new CommonsJdbcEventLogger());
         // make sure CayenneTestResources shared instance is loaded
         CayenneResources.getResources();
 

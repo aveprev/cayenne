@@ -43,6 +43,10 @@ public class QueryLogger {
         QueryLogger.logger = logger;
     }
 
+    public static JdbcEventLogger getLogger() {
+        return logger;
+    }
+
     /**
      * @since 1.2
      */
