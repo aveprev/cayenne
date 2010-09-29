@@ -32,6 +32,9 @@ import org.apache.cayenne.util.Util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @since 3.1
+ */
 public class CommonsJdbcEventLogger implements JdbcEventLogger {
 
     private static final Log logObj = LogFactory.getLog(CommonsJdbcEventLogger.class);

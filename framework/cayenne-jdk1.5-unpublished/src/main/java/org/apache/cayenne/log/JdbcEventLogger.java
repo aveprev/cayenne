@@ -23,6 +23,9 @@ import java.util.List;
 import org.apache.cayenne.conn.DataSourceInfo;
 import org.apache.cayenne.map.DbAttribute;
 
+/**
+ * @since 3.1
+ */
 public interface JdbcEventLogger {
 
     void sqlLiteralForObject(StringBuffer buffer, Object object);
