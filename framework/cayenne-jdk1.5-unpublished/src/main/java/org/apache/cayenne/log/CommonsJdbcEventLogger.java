@@ -300,9 +300,7 @@ public class CommonsJdbcEventLogger implements JdbcEventLogger {
             List<?> params,
             long time) {
         if (isLoggable()) {
-            StringBuffer buf = new StringBuffer((useQueryFormatting)
-                    ? QueryFormatter.formatQuery(queryStr)
-                    : queryStr);
+            StringBuffer buf = new StringBuffer(queryStr);
             buildLog(buf, " [bind: ", "]", attrs, params, isInserting(queryStr));
 
             // log preparation time only if it is something significant
