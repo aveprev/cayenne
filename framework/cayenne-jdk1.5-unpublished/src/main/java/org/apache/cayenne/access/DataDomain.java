@@ -74,7 +74,7 @@ public class DataDomain implements QueryEngine, DataChannel {
     public static final String QUERY_CACHE_FACTORY_PROPERTY = "cayenne.DataDomain.queryCacheFactory";
 
     @Inject
-    private JdbcEventLogger jdbcEventLogger;
+    protected JdbcEventLogger jdbcEventLogger;
 
     /** Stores mapping of data nodes to DataNode name keys. */
     protected Map<String, DataNode> nodes = Collections

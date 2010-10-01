@@ -47,7 +47,7 @@ public class DefaultDbAdapterFactory implements DbAdapterFactory {
     public static final String DETECTORS_LIST = "org.apache.cayenne.configuration.server.DefaultDbAdapterFactory.detectors";
 
     @Inject
-    private JdbcEventLogger jdbcEventLogger;
+    protected JdbcEventLogger jdbcEventLogger;
 
     @Inject
     protected AdhocObjectFactory objectFactory;
