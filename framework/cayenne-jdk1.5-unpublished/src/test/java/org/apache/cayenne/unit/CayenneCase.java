@@ -50,7 +50,6 @@ public abstract class CayenneCase extends TestCase {
     protected AccessStack accessStack;
 
     public CayenneCase() {
-        QueryLogger.setLogger(new CommonsJdbcEventLogger());
         // make sure CayenneTestResources shared instance is loaded
         CayenneResources.getResources();
 

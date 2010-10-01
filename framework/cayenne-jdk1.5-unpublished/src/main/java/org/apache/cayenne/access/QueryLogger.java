@@ -22,6 +22,7 @@ package org.apache.cayenne.access;
 import java.util.List;
 
 import org.apache.cayenne.conn.DataSourceInfo;
+import org.apache.cayenne.log.CommonsJdbcEventLogger;
 import org.apache.cayenne.log.JdbcEventLogger;
 import org.apache.cayenne.map.DbAttribute;
 
@@ -37,7 +38,7 @@ import org.apache.cayenne.map.DbAttribute;
 @Deprecated
 public class QueryLogger {
 
-    private static JdbcEventLogger logger;
+    private static JdbcEventLogger logger = new CommonsJdbcEventLogger();
 
     public static void setLogger(JdbcEventLogger logger) {
         QueryLogger.logger = logger;

@@ -56,7 +56,7 @@ public class ServerCaseModule implements Module {
         // unit test injector. ServerRuntime injector contents are customized
         // inside ServerRuntimeProvider.
 
-        binder.bind(JdbcEventLogger.class).toInstance(QueryLogger.getLogger());
+        binder.bind(JdbcEventLogger.class).to(CommonsJdbcEventLogger.class);
 
         // singleton objects
         binder.bind(UnitTestLifecycleManager.class).toInstance(

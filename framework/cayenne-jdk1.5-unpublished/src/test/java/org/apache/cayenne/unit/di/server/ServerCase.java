@@ -41,8 +41,6 @@ public class ServerCase extends DICase {
     private static final Injector injector;
 
     static {
-        CommonsJdbcEventLogger logger = new CommonsJdbcEventLogger();
-        QueryLogger.setLogger(logger);
         CayenneResources resources = CayenneResources.getResources();
         DefaultScope testScope = new DefaultScope();
         injector = DIBootstrap.createInjector(new ServerCaseModule(resources, testScope));
