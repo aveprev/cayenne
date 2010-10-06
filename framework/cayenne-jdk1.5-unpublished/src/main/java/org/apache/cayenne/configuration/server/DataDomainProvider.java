@@ -79,7 +79,6 @@ public class DataDomainProvider implements Provider<DataDomain> {
     protected Injector injector;
 
     public DataDomain get() throws ConfigurationException {
-
         try {
             return createAndInitDataDomain();
         }
@@ -87,16 +86,37 @@ public class DataDomainProvider implements Provider<DataDomain> {
             throw e;
         }
         catch (Exception e) {
-            throw new DataDomainLoadException("Error loading DataChannel: '%s'", e, e
-                    .getMessage());
+            throw new DataDomainLoadException(
+                    "Error loading DataChannel: '%s'",
+                    e,
+                    e.getMessage());
         }
     }
-    
+
     protected DataDomain createDataDomain(String name) {
         return new DataDomain(name);
     }
 
     protected DataDomain createAndInitDataDomain() throws Exception {
+        Collection<Resource> configurations = findConfigurationResources();
+        return createAndInitDataDomain(configurations);
+    }
+
+    private DataDomain createAndInitDataDomain(Collection<Resource> configurations)
+            throws Exception {
+        DataDomain domain = createDataDomain("RenameMe");
+        domain.setEntitySorter(injector.getInstance(EntitySorter.class));
+        domain.setEventManager(injector.getInstance(EventManager.class));
+        for (Resource configuration : configurations) {
+            DataChannelDescriptor descriptor = getDataChannelDescriptor(configuration);
+            domain.initWithProperties(descriptor.getProperties());
+            initDataDomainWithDataMaps(domain, descriptor.getDataMaps());
+            initDataDomainWithDataNodes(domain, descriptor.getNodeDescriptors());
+        }
+        return domain;
+    }
+
+    private Collection<Resource> findConfigurationResources() {
         String configurationLocation = configurationProperties
                 .get(ServerModule.CONFIGURATION_LOCATION);
 
@@ -108,11 +128,6 @@ public class DataDomainProvider implements Provider<DataDomain> {
                     ServerModule.CONFIGURATION_LOCATION);
         }
 
-        long t0 = System.currentTimeMillis();
-        if (logger.isDebugEnabled()) {
-            logger.debug("starting configuration loading: " + configurationLocation);
-        }
-
         Collection<Resource> configurations = resourceLocator
                 .findResources(configurationLocation);
 
@@ -121,88 +136,91 @@ public class DataDomainProvider implements Provider<DataDomain> {
                     "Configuration file \"%s\" is not found.",
                     configurationLocation);
         }
+        return configurations;
+    }
 
-        Resource configurationResource = configurations.iterator().next();
-
-        // no support for multiple configs yet, but this is not a hard error
-        if (configurations.size() > 1) {
-            logger.info("found "
-                    + configurations.size()
-                    + " configurations, will use the first one: "
-                    + configurationResource.getURL());
-        }
-
-        ConfigurationTree<DataChannelDescriptor> tree = loader
-                .load(configurationResource);
+    private DataChannelDescriptor getDataChannelDescriptor(Resource configuration) {
+        ConfigurationTree<DataChannelDescriptor> tree = loader.load(configuration);
         if (!tree.getLoadFailures().isEmpty()) {
-            // TODO: andrus 03/10/2010 - log the errors before throwing?
             throw new DataDomainLoadException(tree, "Error loading DataChannelDescriptor");
         }
+        return tree.getRootNode();
+    }
 
-        long t1 = System.currentTimeMillis();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("finished configuration loading: "
-                    + configurationLocation
-                    + " in "
-                    + (t1 - t0)
-                    + " ms.");
+    private void initDataDomainWithDataMaps(
+            DataDomain domain,
+            Collection<DataMap> dataMaps) {
+        for (DataMap dataMap : dataMaps) {
+            domain.addDataMap(dataMap);
         }
+    }
 
-        DataChannelDescriptor descriptor = tree.getRootNode();
-        DataDomain dataDomain = createDataDomain(descriptor.getName());
-        
-        dataDomain.setEntitySorter(injector.getInstance(EntitySorter.class));
-        dataDomain.setEventManager(injector.getInstance(EventManager.class));
-
-        dataDomain.initWithProperties(descriptor.getProperties());
-
-        for (DataMap dataMap : descriptor.getDataMaps()) {
-            dataDomain.addDataMap(dataMap);
+    private void initDataDomainWithDataNodes(
+            DataDomain domain,
+            Collection<DataNodeDescriptor> dataNodeDescriptors) throws Exception {
+        for (DataNodeDescriptor nodeDescriptor : dataNodeDescriptors) {
+            domain.addNode(createDataNode(domain, nodeDescriptor));
         }
+    }
 
-        for (DataNodeDescriptor nodeDescriptor : descriptor.getNodeDescriptors()) {
-            DataNode dataNode = new DataNode(nodeDescriptor.getName());
+    private DataNode createDataNode(DataDomain domain, DataNodeDescriptor nodeDescriptor)
+            throws Exception {
+        DataNode dataNode = new DataNode(nodeDescriptor.getName());
+        DataSource dataSource = initDataNodeWithDataSource(nodeDescriptor, dataNode);
+        initDataNodeWithSchemeUpdateStrategy(dataNode, nodeDescriptor);
+        initDataNodeWithDbAdapter(dataNode, nodeDescriptor, dataSource);
+        initDataNodeWithDataMaps(dataNode, nodeDescriptor, domain);
+        return dataNode;
+    }
 
-            dataNode.setDataSourceLocation(nodeDescriptor.getParameters());
+    private DataSource initDataNodeWithDataSource(
+            DataNodeDescriptor nodeDescriptor,
+            DataNode dataNode) throws Exception {
+        dataNode.setDataSourceLocation(nodeDescriptor.getParameters());
 
-            DataSourceFactory dataSourceFactory = dataSourceFactoryLoader
-                    .getDataSourceFactory(nodeDescriptor);
+        DataSourceFactory dataSourceFactory = dataSourceFactoryLoader
+                .getDataSourceFactory(nodeDescriptor);
 
-            DataSource dataSource = dataSourceFactory.getDataSource(nodeDescriptor);
+        DataSource dataSource = dataSourceFactory.getDataSource(nodeDescriptor);
 
-            dataNode.setDataSourceFactory(nodeDescriptor.getDataSourceFactoryType());
-            dataNode.setDataSource(dataSource);
+        dataNode.setDataSourceFactory(nodeDescriptor.getDataSourceFactoryType());
+        dataNode.setDataSource(dataSource);
+        return dataSource;
+    }
 
-            // schema update strategy
-            String schemaUpdateStrategyType = nodeDescriptor
-                    .getSchemaUpdateStrategyType();
+    private void initDataNodeWithSchemeUpdateStrategy(
+            DataNode dataNode,
+            DataNodeDescriptor nodeDescriptor) {
+        String schemaUpdateStrategyType = nodeDescriptor.getSchemaUpdateStrategyType();
 
-            if (schemaUpdateStrategyType == null) {
-                dataNode.setSchemaUpdateStrategy(defaultSchemaUpdateStrategy);
-                dataNode.setSchemaUpdateStrategyName(defaultSchemaUpdateStrategy
-                        .getClass()
-                        .getName());
-            }
-            else {
-                SchemaUpdateStrategy strategy = objectFactory.newInstance(
-                        SchemaUpdateStrategy.class,
-                        schemaUpdateStrategyType);
-                dataNode.setSchemaUpdateStrategyName(schemaUpdateStrategyType);
-                dataNode.setSchemaUpdateStrategy(strategy);
-            }
-
-            // DbAdapter
-            dataNode.setAdapter(adapterFactory.createAdapter(nodeDescriptor, dataSource));
-
-            // DataMaps
-            for (String dataMapName : nodeDescriptor.getDataMapNames()) {
-                dataNode.addDataMap(dataDomain.getDataMap(dataMapName));
-            }
-
-            dataDomain.addNode(dataNode);
+        if (schemaUpdateStrategyType == null) {
+            dataNode.setSchemaUpdateStrategy(defaultSchemaUpdateStrategy);
+            dataNode.setSchemaUpdateStrategyName(defaultSchemaUpdateStrategy
+                    .getClass()
+                    .getName());
         }
+        else {
+            SchemaUpdateStrategy strategy = objectFactory.newInstance(
+                    SchemaUpdateStrategy.class,
+                    schemaUpdateStrategyType);
+            dataNode.setSchemaUpdateStrategyName(schemaUpdateStrategyType);
+            dataNode.setSchemaUpdateStrategy(strategy);
+        }
+    }
 
-        return dataDomain;
+    private void initDataNodeWithDbAdapter(
+            DataNode dataNode,
+            DataNodeDescriptor nodeDescriptor,
+            DataSource dataSource) throws Exception {
+        dataNode.setAdapter(adapterFactory.createAdapter(nodeDescriptor, dataSource));
+    }
+
+    private void initDataNodeWithDataMaps(
+            DataNode dataNode,
+            DataNodeDescriptor nodeDescriptor,
+            DataDomain domain) {
+        for (String dataMapName : nodeDescriptor.getDataMapNames()) {
+            dataNode.addDataMap(domain.getDataMap(dataMapName));
+        }
     }
 }
