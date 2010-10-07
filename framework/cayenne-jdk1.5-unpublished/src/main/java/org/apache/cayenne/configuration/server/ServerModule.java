@@ -114,6 +114,9 @@ public class ServerModule implements Module {
         // a service to provide the main stack DataDomain
         binder.bind(DataDomain.class).toProvider(DataDomainProvider.class);
 
+        binder.bind(DataDomainNameResolver.class).to(DefaultDataDomainNameResolver.class);
+        binder.bind(DataDomainConfigurationResolver.class).toInstance(
+                new SinglePathDataDomainConfigurationResolver(configurationLocation));
         // will return DataDomain for request for a DataChannel
         binder.bind(DataChannel.class).toProvider(DomainDataChannelProvider.class);
 

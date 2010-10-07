@@ -78,6 +78,12 @@ public class DataDomainProvider implements Provider<DataDomain> {
     @Inject
     protected Injector injector;
 
+    @Inject
+    protected DataDomainNameResolver domainNameResolver;
+
+    @Inject
+    protected DataDomainConfigurationResolver domainConfigurationResolver;
+
     public DataDomain get() throws ConfigurationException {
         try {
             return createAndInitDataDomain();
@@ -98,13 +104,15 @@ public class DataDomainProvider implements Provider<DataDomain> {
     }
 
     protected DataDomain createAndInitDataDomain() throws Exception {
-        Collection<Resource> configurations = findConfigurationResources();
-        return createAndInitDataDomain(configurations);
+        DataDomain domain = createDataDomain(domainNameResolver.resolveDomainName());
+        Collection<Resource> configurations = domainConfigurationResolver
+                .resolveConfigurations();
+        return initDataDomain(domain, configurations);
     }
 
-    private DataDomain createAndInitDataDomain(Collection<Resource> configurations)
-            throws Exception {
-        DataDomain domain = createDataDomain("RenameMe");
+    private DataDomain initDataDomain(
+            DataDomain domain,
+            Collection<Resource> configurations) throws Exception {
         domain.setEntitySorter(injector.getInstance(EntitySorter.class));
         domain.setEventManager(injector.getInstance(EventManager.class));
         for (Resource configuration : configurations) {
@@ -114,29 +122,6 @@ public class DataDomainProvider implements Provider<DataDomain> {
             initDataDomainWithDataNodes(domain, descriptor.getNodeDescriptors());
         }
         return domain;
-    }
-
-    private Collection<Resource> findConfigurationResources() {
-        String configurationLocation = configurationProperties
-                .get(ServerModule.CONFIGURATION_LOCATION);
-
-        if (configurationLocation == null) {
-            throw new DataDomainLoadException(
-                    "No configuration location available. "
-                            + "You can specify when creating Cayenne runtime "
-                            + "or via a system property '%s'",
-                    ServerModule.CONFIGURATION_LOCATION);
-        }
-
-        Collection<Resource> configurations = resourceLocator
-                .findResources(configurationLocation);
-
-        if (configurations.isEmpty()) {
-            throw new DataDomainLoadException(
-                    "Configuration file \"%s\" is not found.",
-                    configurationLocation);
-        }
-        return configurations;
     }
 
     private DataChannelDescriptor getDataChannelDescriptor(Resource configuration) {
