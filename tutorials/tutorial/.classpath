@@ -6,5 +6,9 @@
 	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cayenne-di-unpublished"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cayenne-jdk1.5-unpublished"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cayenne-legal-unpublished"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/tutorial-dep"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

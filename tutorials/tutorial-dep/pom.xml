@@ -17,7 +17,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.cayenne</groupId>
-	<artifactId>tutorial</artifactId>
+	<artifactId>tutorial-dep</artifactId>
 	<name>Cayenne Tutorial</name>
 	<version>3.1-SNAPSHOT</version>
 
@@ -27,11 +27,6 @@
 			<artifactId>cayenne-server</artifactId>
 			<version>3.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-            <groupId>org.apache.cayenne</groupId>
-            <artifactId>tutorial-dep</artifactId>
-            <version>3.1-SNAPSHOT</version>
-        </dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
