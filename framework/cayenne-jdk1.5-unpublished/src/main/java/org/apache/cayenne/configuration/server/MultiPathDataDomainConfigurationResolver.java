@@ -18,36 +18,26 @@
  ****************************************************************/
 package org.apache.cayenne.configuration.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
-import org.apache.cayenne.di.Inject;
 import org.apache.cayenne.resource.Resource;
-import org.apache.cayenne.resource.ResourceLocator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-public class SinglePathDataDomainConfigurationResolver extends
+public class MultiPathDataDomainConfigurationResolver extends
         AbstractDataDomainConfigurationResolver {
 
-    private static final Log logger = LogFactory
-            .getLog(SinglePathDataDomainConfigurationResolver.class);
+    private Collection<String> configurationPaths;
 
-    private String configurationPath;
-
-    public SinglePathDataDomainConfigurationResolver(String configurationPath) {
-        this.configurationPath = configurationPath;
+    public MultiPathDataDomainConfigurationResolver(Collection<String> configurationPaths) {
+        this.configurationPaths = configurationPaths;
     }
 
     public Collection<Resource> resolveConfigurations() {
-        Collection<Resource> configurations = findConfigurationResources(configurationPath);
-        Resource configuration = configurations.iterator().next();
-        if (configurations.size() > 1) {
-            logger.info("found "
-                    + configurations.size()
-                    + " configurations, will use the first one: "
-                    + configuration.getURL());
+        List<Resource> configurations = new ArrayList<Resource>();
+        for (String path : configurationPaths) {
+            configurations.addAll(findConfigurationResources(path));
         }
-        return Collections.singleton(configuration);
+        return configurations;
     }
 }

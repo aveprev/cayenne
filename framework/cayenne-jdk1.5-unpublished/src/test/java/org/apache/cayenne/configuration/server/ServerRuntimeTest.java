@@ -47,7 +47,6 @@ public class ServerRuntimeTest extends TestCase {
 
         Module m0 = runtime.getModules()[0];
         assertTrue(m0 instanceof ServerModule);
-        assertEquals("xxxx", ((ServerModule) m0).configurationLocation);
     }
 
     public void testConstructor_Modules() {

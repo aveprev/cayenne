@@ -18,6 +18,11 @@
  ****************************************************************/
 package org.apache.cayenne.configuration.server;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.cayenne.DataChannel;
 import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.QueryLogger;
@@ -70,18 +75,32 @@ public class ServerModule implements Module {
      */
     public static final String CONFIGURATION_LOCATION = "cayenne.config.location";
 
-    protected String configurationLocation;
+    private DataDomainConfigurationResolver domainConfigurationResolver;
 
-    public ServerModule(String configurationLocation) {
-        this.configurationLocation = configurationLocation;
+    public ServerModule() {        
+    }
+    
+    public ServerModule(String configurationPath) {
+        withConfiguration(configurationPath);
+    }
+
+    public ServerModule withConfiguration(String path) {
+        domainConfigurationResolver = new SinglePathDataDomainConfigurationResolver(path);
+        return this;
+    }
+
+    public ServerModule withConfigurations(String... paths) {
+        return withConfigurations(Arrays.asList(paths));
+    }
+
+    public ServerModule withConfigurations(Collection<String> paths) {
+        domainConfigurationResolver = new MultiPathDataDomainConfigurationResolver(paths);
+        return this;
     }
 
     public void configure(Binder binder) {
-
         // configure global stack properties
-        binder.bindMap(DefaultRuntimeProperties.PROPERTIES_MAP).put(
-                ServerModule.CONFIGURATION_LOCATION,
-                configurationLocation);
+        binder.bindMap(DefaultRuntimeProperties.PROPERTIES_MAP);
 
         CommonsJdbcEventLogger logger = new CommonsJdbcEventLogger();
         QueryLogger.setLogger(logger);
@@ -116,7 +135,7 @@ public class ServerModule implements Module {
 
         binder.bind(DataDomainNameResolver.class).to(DefaultDataDomainNameResolver.class);
         binder.bind(DataDomainConfigurationResolver.class).toInstance(
-                new SinglePathDataDomainConfigurationResolver(configurationLocation));
+                domainConfigurationResolver);
         // will return DataDomain for request for a DataChannel
         binder.bind(DataChannel.class).toProvider(DomainDataChannelProvider.class);
 

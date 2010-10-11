@@ -19,35 +19,25 @@
 package org.apache.cayenne.configuration.server;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.cayenne.di.Inject;
 import org.apache.cayenne.resource.Resource;
 import org.apache.cayenne.resource.ResourceLocator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-public class SinglePathDataDomainConfigurationResolver extends
-        AbstractDataDomainConfigurationResolver {
+public abstract class AbstractDataDomainConfigurationResolver implements
+        DataDomainConfigurationResolver {
 
-    private static final Log logger = LogFactory
-            .getLog(SinglePathDataDomainConfigurationResolver.class);
+    @Inject
+    protected ResourceLocator resourceLocator;
 
-    private String configurationPath;
-
-    public SinglePathDataDomainConfigurationResolver(String configurationPath) {
-        this.configurationPath = configurationPath;
-    }
-
-    public Collection<Resource> resolveConfigurations() {
-        Collection<Resource> configurations = findConfigurationResources(configurationPath);
-        Resource configuration = configurations.iterator().next();
-        if (configurations.size() > 1) {
-            logger.info("found "
-                    + configurations.size()
-                    + " configurations, will use the first one: "
-                    + configuration.getURL());
+    protected Collection<Resource> findConfigurationResources(String path) {
+        Collection<Resource> configurations = resourceLocator
+                .findResources(path);
+        if (configurations.isEmpty()) {
+            throw new DataDomainLoadException(
+                    "Configuration file \"%s\" is not found.",
+                    path);
         }
-        return Collections.singleton(configuration);
+        return configurations;
     }
 }
