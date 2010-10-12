@@ -45,4 +45,6 @@
 	<obj-relationship name="paintings" source="Gallery" target="Painting" deleteRule="Nullify" db-relationship-path="paintings"/>
 	<obj-relationship name="artist" source="Painting" target="Artist" deleteRule="Nullify" db-relationship-path="artist"/>
 	<obj-relationship name="gallery" source="Painting" target="Gallery" deleteRule="Nullify" db-relationship-path="gallery"/>
+	<query name="ArtistQuery" factory="org.apache.cayenne.map.SelectQueryBuilder" root="obj-entity" root-name="Artist">
+	</query>
 </data-map>
