@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.cayenne.Cayenne;
 import org.apache.cayenne.DataObject;
+import org.apache.cayenne.DataRow;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.ObjectId;
 import org.apache.cayenne.PersistenceState;
@@ -475,5 +476,19 @@ public class NestedDataContextReadTest extends CayenneCase {
         finally {
             unblockQueries();
         }
+    }
+
+    public void testObjectFromDataRow() throws Exception {
+        deleteTestData();
+
+        DataContext context = createDataContext();
+        DataContext childContext = (DataContext) context.createChildContext();
+
+        DataRow row = new DataRow(8);
+        row.put("ARTIST_ID", 5l);
+        row.put("ARTIST_NAME", "A");
+
+        Artist a = childContext.objectFromDataRow(Artist.class, row, true);
+        assertNotNull(a);
     }
 }
