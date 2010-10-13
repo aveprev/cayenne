@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cayenne.DataRow;
-import org.apache.cayenne.configuration.ConfigurationNodeVisitor;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.map.DbEntity;
 import org.apache.cayenne.map.EntityResolver;
@@ -58,10 +57,6 @@ class ObjectsFromDataRowsQuery implements Query, QueryMetadata {
         return dataRows;
     }
 
-    public <T> T acceptVisitor(ConfigurationNodeVisitor<T> visitor) {
-        return visitor.visitQuery(this);
-    }
-
     public QueryMetadata getMetaData(EntityResolver resolver) {
         return this;
     }
@@ -75,6 +70,14 @@ class ObjectsFromDataRowsQuery implements Query, QueryMetadata {
 
     public String getName() {
         return null;
+    }
+
+    public boolean isResolvingInherited() {
+        return false;
+    }
+
+    public int getFetchStartIndex() {
+        return 0;
     }
 
     public DataMap getDataMap() {
@@ -110,7 +113,7 @@ class ObjectsFromDataRowsQuery implements Query, QueryMetadata {
     }
 
     public boolean isFetchingDataRows() {
-     // must return true, otherwise the stack will attempt DataObject conversion
+        // must return true, otherwise the stack will attempt DataObject conversion
         return true;
     }
 
@@ -148,5 +151,9 @@ class ObjectsFromDataRowsQuery implements Query, QueryMetadata {
 
     public int getStatementFetchSize() {
         return 0;
+    }
+
+    public String getCachePolicy() {
+        return null;
     }
 }
