@@ -594,6 +594,15 @@ public class DataContext extends BaseContext implements DataChannel {
     public List objectsFromDataRows(
             ClassDescriptor descriptor,
             List<? extends DataRow> dataRows) {
+        // TODO: If data row cache is not available it means that current data context is
+        // child. We need to redirect this method call to parent data context as an
+        // internal query. It is not obvious and has some overhead. Redesign for nested
+        // contexts should be done.
+        if (getObjectStore().getDataRowCache() == null) {
+            return getChannel().onQuery(
+                    this,
+                    new ObjectsFromDataRowsQuery(descriptor, dataRows)).firstList();
+        }
         return new ObjectResolver(this, descriptor, true)
                 .synchronizedObjectsFromDataRows(dataRows);
     }
