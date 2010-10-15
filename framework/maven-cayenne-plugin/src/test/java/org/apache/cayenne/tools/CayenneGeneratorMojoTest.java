@@ -86,4 +86,4 @@ public class CayenneGeneratorMojoTest extends AbstractMojoTestCase {
 		assertFalse(excludedEntity.exists());
 
 	}
-}
+
