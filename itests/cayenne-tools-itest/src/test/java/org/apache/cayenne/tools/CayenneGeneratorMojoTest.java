@@ -2,7 +2,7 @@ package org.apache.cayenne.tools;
 
 import org.apache.cayenne.reflect.FieldAccessor;
 
-public class CayenneGeneratorMojoTest extends ClassGenerationPluginCase {
+public class CayenneGeneratorMojoTest extends ClassGenerationPluginIntegrationCase {
 
     private CayenneGeneratorMojo mojo;
 
