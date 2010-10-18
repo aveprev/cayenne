@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 import org.apache.cayenne.test.file.FileUtil;
 import org.apache.cayenne.test.resource.ResourceUtil;
 
-public abstract class ClassGenerationPluginCase extends TestCase {
+public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
     protected File testDir;
     protected File mapDir;

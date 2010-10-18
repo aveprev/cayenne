@@ -23,7 +23,7 @@ import org.apache.cayenne.reflect.FieldAccessor;
 import org.apache.tools.ant.Location;
 import org.apache.tools.ant.Project;
 
-public class CayenneGeneratorTaskTest extends ClassGenerationPluginCase {
+public class CayenneGeneratorTaskIntegrationTest extends ClassGenerationPluginIntegrationCase {
 
     protected CayenneGeneratorTask task;
 
