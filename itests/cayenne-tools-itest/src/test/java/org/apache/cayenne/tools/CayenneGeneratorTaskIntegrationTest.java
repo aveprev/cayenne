@@ -19,9 +19,14 @@
 
 package org.apache.cayenne.tools;
 
+import java.io.File;
+
 import org.apache.cayenne.reflect.FieldAccessor;
+import org.apache.cayenne.test.resource.ResourceUtil;
 import org.apache.tools.ant.Location;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileList;
+import org.apache.tools.ant.types.Path;
 
 public class CayenneGeneratorTaskIntegrationTest extends ClassGenerationPluginIntegrationCase {
 
@@ -52,5 +57,44 @@ public class CayenneGeneratorTaskIntegrationTest extends ClassGenerationPluginIn
             name = name.toLowerCase();
         }
         new FieldAccessor(task.getClass(), name, value.getClass()).setValue(task, value);
+    }
+
+    public void testCrossDataMapRelationships() throws Exception {
+        File map = new File(testDir, "cgen-dependent.map.xml");
+        ResourceUtil.copyResourceToFile("org/apache/cayenne/tools/cgen-dependent.map.xml", map);
+
+        File additionalMaps[] = new File[1];
+        additionalMaps[0] = new File(testDir, "cgen.map.xml");
+        ResourceUtil.copyResourceToFile("org/apache/cayenne/tools/cgen.map.xml", additionalMaps[0]);
+
+        FileList additionalMapsFilelist = new FileList();
+        additionalMapsFilelist.setDir(additionalMaps[0].getParentFile());
+        additionalMapsFilelist.setFiles(additionalMaps[0].getName());
+
+        Path additionalMapsPath = new Path(task.getProject());
+        additionalMapsPath.addFilelist(additionalMapsFilelist);
+
+        task.setMap(map);
+        task.setAdditionalMaps(additionalMapsPath);
+        task.setMakepairs(true);
+        task.setOverwrite(false);
+        task.setMode("entity");
+        task.setIncludeEntities("MyArtGroup");
+        task.setDestDir(mapDir);
+        task.setSuperpkg("org.apache.cayenne.testdo.cgen2.auto");
+        task.setUsepkgpath(true);
+
+        execute();
+
+        assertContents("org/apache/cayenne/testdo/cgen2/MyArtGroup.java", "MyArtGroup",
+                "org.apache.cayenne.testdo.cgen2", "_MyArtGroup");
+
+        assertContents("org/apache/cayenne/testdo/cgen2/auto/_MyArtGroup.java", "_MyArtGroup",
+                "org.apache.cayenne.testdo.cgen2.auto", "CayenneDataObject");
+        assertContents("org/apache/cayenne/testdo/cgen2/auto/_MyArtGroup.java",
+                "import org.apache.cayenne.testdo.testmap.ArtGroup;");
+        assertContents("org/apache/cayenne/testdo/cgen2/auto/_MyArtGroup.java", " ArtGroup getToParentGroup()");
+        assertContents("org/apache/cayenne/testdo/cgen2/auto/_MyArtGroup.java",
+                "setToParentGroup(ArtGroup toParentGroup)");
     }
 }

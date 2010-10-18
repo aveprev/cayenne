@@ -29,6 +29,10 @@ import junit.framework.TestCase;
 
 import org.apache.cayenne.test.file.FileUtil;
 import org.apache.cayenne.test.resource.ResourceUtil;
+import org.apache.tools.ant.Location;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileList;
+import org.apache.tools.ant.types.Path;
 
 public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
@@ -40,8 +44,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
     @Override
     public void setUp() {
-        testDir = new File(FileUtil.baseTestDirectory(), String.valueOf(Math
-                .abs(new Random().nextInt())));
+        testDir = new File(FileUtil.baseTestDirectory(), String.valueOf(Math.abs(new Random().nextInt())));
         assertTrue(testDir.mkdir());
         mapDir = new File(testDir, "map");
         assertTrue(mapDir.mkdir());
@@ -52,9 +55,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         ResourceUtil.copyResourceToFile("testmap.map.xml", map);
         ResourceUtil.copyResourceToFile("embeddable.map.xml", mapEmbeddables);
-        ResourceUtil.copyResourceToFile(
-                "org/apache/cayenne/tools/velotemplate.vm",
-                template);
+        ResourceUtil.copyResourceToFile("org/apache/cayenne/tools/velotemplate.vm", template);
     }
 
     protected abstract void execute() throws Exception;
@@ -73,10 +74,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
+        assertContents("org/apache/cayenne/testdo/testmap/Artist.java", "Artist", "org.apache.cayenne.testdo.testmap",
                 "CayenneDataObject");
         assertExists("org/apache/cayenne/testdo/testmap/_Artist.java");
     }
@@ -90,10 +88,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
+        assertContents("org/apache/cayenne/testdo/testmap/Artist.java", "Artist", "org.apache.cayenne.testdo.testmap",
                 "CayenneDataObject");
         assertExists("org/apache/cayenne/testdo/testmap/_Artist.java");
     }
@@ -107,11 +102,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
-                "CayenneDataObject");
+        assertContents("Artist.java", "Artist", "org.apache.cayenne.testdo.testmap", "CayenneDataObject");
         assertExists("_Artist.java");
         assertExists("org/apache/cayenne/testdo/testmap/Artist.java");
     }
@@ -125,16 +116,10 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
+        assertContents("org/apache/cayenne/testdo/testmap/Artist.java", "Artist", "org.apache.cayenne.testdo.testmap",
                 "_Artist");
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/_Artist.java",
-                "_Artist",
-                "org.apache.cayenne.testdo.testmap",
-                "CayenneDataObject");
+        assertContents("org/apache/cayenne/testdo/testmap/_Artist.java", "_Artist",
+                "org.apache.cayenne.testdo.testmap", "CayenneDataObject");
     }
 
     /** Test pairs generation in the same directory. */
@@ -146,22 +131,14 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
-                "_Artist");
-        assertContents(
-                "_Artist.java",
-                "_Artist",
-                "org.apache.cayenne.testdo.testmap",
-                "CayenneDataObject");
+        assertContents("Artist.java", "Artist", "org.apache.cayenne.testdo.testmap", "_Artist");
+        assertContents("_Artist.java", "_Artist", "org.apache.cayenne.testdo.testmap", "CayenneDataObject");
         assertExists("org/apache/cayenne/testdo/testmap/Artist.java");
     }
 
     /**
-     * Test pairs generation including full package path with superclass and subclass in
-     * different packages.
+     * Test pairs generation including full package path with superclass and
+     * subclass in different packages.
      */
     public void testPairs3() throws Exception {
         setProperty("destDir", mapDir);
@@ -172,16 +149,10 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/Artist.java",
-                "Artist",
-                "org.apache.cayenne.testdo.testmap",
+        assertContents("org/apache/cayenne/testdo/testmap/Artist.java", "Artist", "org.apache.cayenne.testdo.testmap",
                 "_Artist");
-        assertContents(
-                "org/apache/cayenne/testdo/testmap/superart/_Artist.java",
-                "_Artist",
-                "org.apache.cayenne.testdo.testmap.superart",
-                "CayenneDataObject");
+        assertContents("org/apache/cayenne/testdo/testmap/superart/_Artist.java", "_Artist",
+                "org.apache.cayenne.testdo.testmap.superart", "CayenneDataObject");
     }
 
     public void testPairsEmbeddable3() throws Exception {
@@ -193,67 +164,70 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
 
         execute();
 
-        assertContents(
-                "org/apache/cayenne/testdo/embeddable/EmbedEntity1.java",
-                "EmbedEntity1",
-                "org.apache.cayenne.testdo.embeddable",
-                "_EmbedEntity1");
-        assertContents(
-                "org/apache/cayenne/testdo/embeddable/auto/_EmbedEntity1.java",
-                "_EmbedEntity1",
-                "org.apache.cayenne.testdo.embeddable.auto",
-                "CayenneDataObject");
-        assertContents(
-                "org/apache/cayenne/testdo/embeddable/Embeddable1.java",
-                "Embeddable1",
-                "org.apache.cayenne.testdo.embeddable",
-                "_Embeddable1");
-        assertContents(
-                "org/apache/cayenne/testdo/embeddable/auto/_Embeddable1.java",
-                "_Embeddable1",
-                "org.apache.cayenne.testdo.embeddable.auto",
-                "Object");
+        assertContents("org/apache/cayenne/testdo/embeddable/EmbedEntity1.java", "EmbedEntity1",
+                "org.apache.cayenne.testdo.embeddable", "_EmbedEntity1");
+        assertContents("org/apache/cayenne/testdo/embeddable/auto/_EmbedEntity1.java", "_EmbedEntity1",
+                "org.apache.cayenne.testdo.embeddable.auto", "CayenneDataObject");
+        assertContents("org/apache/cayenne/testdo/embeddable/Embeddable1.java", "Embeddable1",
+                "org.apache.cayenne.testdo.embeddable", "_Embeddable1");
+        assertContents("org/apache/cayenne/testdo/embeddable/auto/_Embeddable1.java", "_Embeddable1",
+                "org.apache.cayenne.testdo.embeddable.auto", "Object");
     }
 
     private String convertPath(String unixPath) {
         return unixPath.replace('/', File.separatorChar);
     }
 
-    private void assertContents(
-            String filePath,
-            String className,
-            String packageName,
-            String extendsName) throws Exception {
+    protected void assertContents(String filePath, String className, String packageName, String extendsName)
+            throws Exception {
         File f = new File(mapDir, convertPath(filePath));
         assertTrue(f.isFile());
         assertContents(f, className, packageName, extendsName);
     }
 
-    private void assertExists(String filePath) {
+    protected void assertExists(String filePath) {
         File f = new File(mapDir, convertPath(filePath));
         assertFalse(f.exists());
     }
 
-    private void assertContents(
-            File f,
-            String className,
-            String packageName,
-            String extendsName) throws Exception {
+    protected void assertContents(File f, String className, String packageName, String extendsName) throws Exception {
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(
-                f)));
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
 
         try {
             assertPackage(in, packageName);
             assertClass(in, className, extendsName);
-        }
-        finally {
+        } finally {
             in.close();
         }
 
     }
 
-    private void assertPackage(BufferedReader in, String packageName) throws Exception {
+    protected void assertContents(String filePath, String content) throws Exception {
+        File f = new File(mapDir, convertPath(filePath));
+        assertTrue(f.isFile());
+        assertContents(f, content);
+    }
+
+    protected void assertContents(File f, String content) throws Exception {
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+
+        try {
+            String s = null;
+            while ((s = in.readLine()) != null) {
+                if (s.contains(content))
+                    return;
+            }
+
+            fail("<" + content + "> not found in " + f.getAbsolutePath() + ".");
+        } finally {
+            in.close();
+        }
+
+    }
+
+    protected void assertPackage(BufferedReader in, String packageName) throws Exception {
 
         String s = null;
         while ((s = in.readLine()) != null) {
@@ -266,8 +240,7 @@ public abstract class ClassGenerationPluginIntegrationCase extends TestCase {
         fail("No package declaration found.");
     }
 
-    private void assertClass(BufferedReader in, String className, String extendsName)
-            throws Exception {
+    protected void assertClass(BufferedReader in, String className, String extendsName) throws Exception {
 
         Pattern classPattern = Pattern.compile("^public\\s+");
 
