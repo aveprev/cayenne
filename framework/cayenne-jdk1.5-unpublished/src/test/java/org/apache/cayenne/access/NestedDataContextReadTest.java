@@ -19,6 +19,7 @@
 
 package org.apache.cayenne.access;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -487,8 +488,10 @@ public class NestedDataContextReadTest extends CayenneCase {
         DataRow row = new DataRow(8);
         row.put("ARTIST_ID", 5l);
         row.put("ARTIST_NAME", "A");
+        row.put("DATE_OF_BIRTH", new Date());
 
         Artist a = childContext.objectFromDataRow(Artist.class, row, true);
         assertNotNull(a);
+        assertEquals(PersistenceState.COMMITTED, a.getPersistenceState());
     }
 }
