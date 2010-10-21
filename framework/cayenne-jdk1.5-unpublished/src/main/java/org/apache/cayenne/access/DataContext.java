@@ -608,13 +608,9 @@ public class DataContext extends BaseContext implements DataChannel {
     private List objectsFromDataRowsFromParentContext(
             ClassDescriptor descriptor,
             List<? extends DataRow> dataRows) {
-        List objects = getChannel().onQuery(
+        return getChannel().onQuery(
                 this,
                 new ObjectsFromDataRowsQuery(descriptor, dataRows)).firstList();
-        for (Object obj : objects) {
-            ((Persistent) obj).setObjectContext(this);
-        }
-        return objects;
     }
 
     /**
