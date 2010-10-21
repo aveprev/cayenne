@@ -599,12 +599,22 @@ public class DataContext extends BaseContext implements DataChannel {
         // internal query. It is not obvious and has some overhead. Redesign for nested
         // contexts should be done.
         if (getObjectStore().getDataRowCache() == null) {
-            return getChannel().onQuery(
-                    this,
-                    new ObjectsFromDataRowsQuery(descriptor, dataRows)).firstList();
+            return objectsFromDataRowsFromParentContext(descriptor, dataRows);
         }
         return new ObjectResolver(this, descriptor, true)
                 .synchronizedObjectsFromDataRows(dataRows);
+    }
+
+    private List objectsFromDataRowsFromParentContext(
+            ClassDescriptor descriptor,
+            List<? extends DataRow> dataRows) {
+        List objects = getChannel().onQuery(
+                this,
+                new ObjectsFromDataRowsQuery(descriptor, dataRows)).firstList();
+        for (Object obj : objects) {
+            ((Persistent) obj).setObjectContext(this);
+        }
+        return objects;
     }
 
     /**
