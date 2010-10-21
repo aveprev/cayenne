@@ -84,19 +84,11 @@ public abstract class ObjectContextQueryAction {
      */
     public QueryResponse execute() {
 
-        if (interceptInternalQuery() != DONE) {
-            if (interceptOIDQuery() != DONE) {
-                if (interceptRelationshipQuery() != DONE) {
-                    if (interceptRefreshQuery() != DONE) {
-                        if (interceptLocalCache() != DONE) {
-                            // when changing the flow below, make sure to update
-                            // 'getCacheObjectFactory' method that mimics the interceptors
-                            // below 'interceptLocalCache'. See comment in an inner class
-                            // factory in this method...
-                            if (interceptPaginatedQuery() != DONE) {
-                                runQuery();
-                            }
-                        }
+        if (interceptOIDQuery() != DONE) {
+            if (interceptRelationshipQuery() != DONE) {
+                if (interceptRefreshQuery() != DONE) {
+                    if (interceptLocalCache() != DONE) {
+                        executePostCache();
                     }
                 }
             }
@@ -104,6 +96,14 @@ public abstract class ObjectContextQueryAction {
 
         interceptObjectConversion();
         return response;
+    }
+
+    private void executePostCache() {
+        if (interceptInternalQuery() != DONE) {
+            if (interceptPaginatedQuery() != DONE) {
+                runQuery();
+            }
+        }
     }
 
     /**
@@ -323,12 +323,7 @@ public abstract class ObjectContextQueryAction {
         return new QueryCacheEntryFactory() {
 
             public Object createObject() {
-                // must follow the same logic as 'execute' below locla cache interceptor
-                // method... reuse that code somehow???
-                if (interceptPaginatedQuery() != DONE) {
-                    runQuery();
-                }
-
+                executePostCache();
                 return response.firstList();
             }
         };
