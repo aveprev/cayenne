@@ -110,8 +110,7 @@ class ObjectsFromDataRowsQuery implements Query, QueryMetadata {
     }
 
     public boolean isFetchingDataRows() {
-     // must return true, otherwise the stack will attempt DataObject conversion
-        return true;
+        return false;
     }
 
     public boolean isRefreshingObjects() {
