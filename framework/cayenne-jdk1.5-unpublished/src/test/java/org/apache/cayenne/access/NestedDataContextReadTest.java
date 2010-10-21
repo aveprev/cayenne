@@ -489,9 +489,12 @@ public class NestedDataContextReadTest extends CayenneCase {
         row.put("ARTIST_NAME", "A");
         row.put("DATE_OF_BIRTH", new Date());
 
-        Artist a = childContext.objectFromDataRow(Artist.class, row, true);
-        assertNotNull(a);
-        assertEquals(PersistenceState.COMMITTED, a.getPersistenceState());
-        assertSame(childContext, a.getObjectContext());
+        Artist artist = childContext.objectFromDataRow(Artist.class, row, true);
+        assertNotNull(artist);
+        assertEquals(PersistenceState.COMMITTED, artist.getPersistenceState());
+        assertSame(childContext, artist.getObjectContext());
+        Object parentArtist = context.getObjectStore().getNode(artist.getObjectId());
+        assertNotNull(parentArtist);
+        assertNotSame(artist, parentArtist);
     }
 }
