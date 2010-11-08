@@ -45,12 +45,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.cayenne.unpublished</groupId>
 			<artifactId>cayenne-di-unpublished</artifactId>
 			<version>${version}</version>
@@ -61,7 +55,7 @@
 			<artifactId>cayenne-jdk1.5-unpublished</artifactId>
 			<version>${version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.cayenne</groupId>
 			<artifactId>cayenne-tools</artifactId>
@@ -72,11 +66,6 @@
             <groupId>org.apache.cayenne.plugins</groupId>
             <artifactId>maven-cayenne-plugin</artifactId>
             <version>${version}</version>
-        </dependency>
-
-		<dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
         </dependency>
 	</dependencies>
 
@@ -97,7 +86,100 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-
+			
+			<plugin>
+				<groupId>org.apache.cayenne.plugins</groupId>
+				<artifactId>maven-cayenne-plugin</artifactId>
+				<executions>
+				    <execution>
+				        <id>single-classes-cust-template</id>
+				        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+		                <configuration>
+		                  <map>src/test/resources/testmap.map.xml</map>
+		                  <destDir>target/generated-tests/single-classes-cust-template</destDir>
+		                  <makePairs>false</makePairs>
+		                  <usePkgPath>true</usePkgPath>
+		                  <template>src/test/resources/org/apache/cayenne/tools/velotemplate.vm</template>
+		                </configuration>
+				    </execution>
+				    <execution>
+                        <id>single-classes1</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/testmap.map.xml</map>
+                          <destDir>target/generated-tests/single-classes1</destDir>
+                          <makePairs>false</makePairs>
+                          <usePkgPath>true</usePkgPath>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>single-classes2</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/testmap.map.xml</map>
+                          <destDir>target/generated-tests/single-classes2</destDir>
+                          <makePairs>false</makePairs>
+                          <usePkgPath>false</usePkgPath>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pairs1</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/testmap.map.xml</map>
+                          <destDir>target/generated-tests/pairs1</destDir>
+                          <makePairs>true</makePairs>
+                          <usePkgPath>true</usePkgPath>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pairs2</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/testmap.map.xml</map>
+                          <destDir>target/generated-tests/pairs2</destDir>
+                          <makePairs>true</makePairs>
+                          <usePkgPath>false</usePkgPath>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pairs3</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/testmap.map.xml</map>
+                          <destDir>target/generated-tests/pairs3</destDir>
+                          <makePairs>true</makePairs>
+                          <usePkgPath>true</usePkgPath>
+                          <superPkg>org.apache.cayenne.testdo.testmap.superart</superPkg>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pairs-embeddables3</id>
+                        <goals>
+                            <goal>cgen</goal>
+                        </goals>
+                        <configuration>
+                          <map>src/test/resources/embeddable.map.xml</map>
+                          <destDir>target/generated-tests/pairs-embeddables3</destDir>
+                          <makePairs>true</makePairs>
+                          <usePkgPath>true</usePkgPath>
+                          <superPkg>org.apache.cayenne.testdo.embeddable.auto</superPkg>
+                        </configuration>
+                    </execution>
+				</executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
