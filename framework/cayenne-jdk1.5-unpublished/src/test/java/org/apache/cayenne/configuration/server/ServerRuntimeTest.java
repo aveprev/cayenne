@@ -50,6 +50,22 @@ public class ServerRuntimeTest extends TestCase {
         assertEquals("xxxx", ((ServerModule) m0).configurationLocation);
     }
 
+    public void testConstructorWithServerModule() {
+        ServerModule module = new ServerModule("xxxx");
+        ServerRuntime runtime = new ServerRuntime(module);
+
+        assertEquals("xxxx", runtime
+                .getInjector()
+                .getInstance(RuntimeProperties.class)
+                .get(ServerModule.CONFIGURATION_LOCATION));
+
+        assertEquals(1, runtime.getModules().length);
+
+        Module m0 = runtime.getModules()[0];
+        assertSame(module, m0);
+        assertEquals("xxxx", ((ServerModule) m0).configurationLocation);
+    }
+
     public void testConstructor_Modules() {
 
         final boolean[] configured = new boolean[2];

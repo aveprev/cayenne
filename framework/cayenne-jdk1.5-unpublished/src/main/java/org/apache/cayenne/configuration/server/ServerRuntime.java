@@ -50,6 +50,10 @@ public class ServerRuntime extends CayenneRuntime {
         super(mergeModules(mainModule(configurationLocation), extraModules));
     }
 
+    public ServerRuntime(ServerModule mainModule, Module... extraModules) {
+        super(mergeModules(mainModule, extraModules));
+    }
+
     /**
      * Creates a server runtime configuring it with a standard set of services contained
      * in {@link ServerModule}. CayenneServerModule is created with provided
