@@ -123,6 +123,8 @@ public class DataDomainProviderTest extends TestCase {
                 binder.bind(EntitySorter.class).toInstance(new AshwoodEntitySorter());
                 binder.bind(ResourceLocator.class).toInstance(locator);
                 binder.bind(RuntimeProperties.class).toInstance(testProperties);
+                binder.bind(DataDomainConfigurationResolver.class).toInstance(
+                        new SinglePathDataDomainConfigurationResolver(testConfigName));
                 binder.bind(ConfigurationNameMapper.class).to(
                         DefaultConfigurationNameMapper.class);
                 binder.bind(DataChannelDescriptorLoader.class).toInstance(testLoader);

@@ -42,9 +42,6 @@ import org.apache.cayenne.event.EventManager;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.map.EntitySorter;
 import org.apache.cayenne.resource.Resource;
-import org.apache.cayenne.resource.ResourceLocator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A {@link DataChannel} provider that provides a single instance of DataDomain configured
@@ -54,15 +51,13 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DataDomainProvider implements Provider<DataDomain> {
 
-    private static Log logger = LogFactory.getLog(DataDomainProvider.class);
-
     /**
      * A DI key for the list storing DataDomain filters.
      */
     public static final String FILTERS_LIST = "org.apache.cayenne.configuration.server.DataDomainProvider.filters";
 
     @Inject
-    protected ResourceLocator resourceLocator;
+    protected DataDomainConfigurationResolver configurationResolver;
 
     @Inject
     protected DataChannelDescriptorLoader loader;
@@ -97,8 +92,10 @@ public class DataDomainProvider implements Provider<DataDomain> {
             throw e;
         }
         catch (Exception e) {
-            throw new DataDomainLoadException("Error loading DataChannel: '%s'", e, e
-                    .getMessage());
+            throw new DataDomainLoadException(
+                    "Error loading DataChannel: '%s'",
+                    e,
+                    e.getMessage());
         }
     }
 
@@ -106,71 +103,50 @@ public class DataDomainProvider implements Provider<DataDomain> {
         return new DataDomain(name);
     }
 
-    protected DataDomain createAndInitDataDomain() throws Exception {
-        String configurationLocation = configurationProperties
-                .get(ServerModule.CONFIGURATION_LOCATION);
-
-        if (configurationLocation == null) {
-            throw new DataDomainLoadException(
-                    "No configuration location available. "
-                            + "You can specify when creating Cayenne runtime "
-                            + "or via a system property '%s'",
-                    ServerModule.CONFIGURATION_LOCATION);
-        }
-
-        long t0 = System.currentTimeMillis();
-        if (logger.isDebugEnabled()) {
-            logger.debug("starting configuration loading: " + configurationLocation);
-        }
-
-        Collection<Resource> configurations = resourceLocator
-                .findResources(configurationLocation);
-
-        if (configurations.isEmpty()) {
-            throw new DataDomainLoadException(
-                    "Configuration file \"%s\" is not found.",
-                    configurationLocation);
-        }
-
-        Resource configurationResource = configurations.iterator().next();
-
-        // no support for multiple configs yet, but this is not a hard error
-        if (configurations.size() > 1) {
-            logger.info("found "
-                    + configurations.size()
-                    + " configurations, will use the first one: "
-                    + configurationResource.getURL());
-        }
-
-        ConfigurationTree<DataChannelDescriptor> tree = loader
-                .load(configurationResource);
-        if (!tree.getLoadFailures().isEmpty()) {
-            // TODO: andrus 03/10/2010 - log the errors before throwing?
-            throw new DataDomainLoadException(tree, "Error loading DataChannelDescriptor");
-        }
-
-        long t1 = System.currentTimeMillis();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("finished configuration loading: "
-                    + configurationLocation
-                    + " in "
-                    + (t1 - t0)
-                    + " ms.");
-        }
-
-        DataChannelDescriptor descriptor = tree.getRootNode();
+    protected DataDomain createAndInitDataDomain(DataChannelDescriptor descriptor) {
         DataDomain dataDomain = createDataDomain(descriptor.getName());
-
         dataDomain.setEntitySorter(injector.getInstance(EntitySorter.class));
         dataDomain.setEventManager(injector.getInstance(EventManager.class));
-
         dataDomain.initWithProperties(descriptor.getProperties());
+        return dataDomain;
+    }
 
-        for (DataMap dataMap : descriptor.getDataMaps()) {
-            dataDomain.addDataMap(dataMap);
+    protected DataDomain createAndInitDataDomain() throws Exception {
+        Collection<Resource> configurations = configurationResolver
+                .resolveConfigurations();
+        DataDomain dataDomain = null;
+        for (Resource configuration : configurations) {
+            ConfigurationTree<DataChannelDescriptor> tree = loader.load(configuration);
+            if (!tree.getLoadFailures().isEmpty()) {
+                // TODO: andrus 03/10/2010 - log the errors before throwing?
+                throw new DataDomainLoadException(
+                        tree,
+                        "Error loading DataChannelDescriptor");
+            }
+            DataChannelDescriptor descriptor = tree.getRootNode();
+
+            if (dataDomain == null) {
+                // using the first configuration to resolve data domain name
+                dataDomain = createAndInitDataDomain(descriptor);
+            }
+            initDataDomainWithDataMaps(dataDomain, descriptor);
+            initDataDomainWithDataNodes(dataDomain, descriptor);
+            initDataDomainWithFilters(dataDomain);
+        }
+        return dataDomain;
+    }
+
+    private void initDataDomainWithFilters(DataDomain dataDomain) {
+        for (DataChannelFilter filter : filters) {
+            filter.init(dataDomain);
         }
 
+        dataDomain.setFilters(filters);
+    }
+
+    private void initDataDomainWithDataNodes(
+            DataDomain dataDomain,
+            DataChannelDescriptor descriptor) throws Exception {
         for (DataNodeDescriptor nodeDescriptor : descriptor.getNodeDescriptors()) {
             DataNode dataNode = new DataNode(nodeDescriptor.getName());
 
@@ -212,13 +188,13 @@ public class DataDomainProvider implements Provider<DataDomain> {
 
             dataDomain.addNode(dataNode);
         }
+    }
 
-        for (DataChannelFilter filter : filters) {
-            filter.init(dataDomain);
+    private void initDataDomainWithDataMaps(
+            DataDomain dataDomain,
+            DataChannelDescriptor descriptor) {
+        for (DataMap dataMap : descriptor.getDataMaps()) {
+            dataDomain.addDataMap(dataMap);
         }
-
-        dataDomain.setFilters(filters);
-
-        return dataDomain;
     }
 }

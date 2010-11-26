@@ -87,6 +87,9 @@ public class ServerModule implements Module {
         QueryLogger.setLogger(logger);
         binder.bind(JdbcEventLogger.class).toInstance(logger);
 
+        binder.bind(DataDomainConfigurationResolver.class).to(
+                WrappingDataDomainConfigurationResolver.class);
+
         // configure known DbAdapter detectors in reverse order of popularity. Users can
         // add their own to install custom adapters automatically
         binder
