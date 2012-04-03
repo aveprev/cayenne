@@ -162,7 +162,12 @@ class HierarchicalObjectResolver {
                 pathPrefix = buffer.append(".").toString();
             }
 
-            for (Object dataRow : parentProcessorNode.getDataRows()) {
+            List parentDataRows = parentProcessorNode.getDataRows();
+            if (parentProcessorNode instanceof PrefetchProcessorJointNode) {
+                parentDataRows = ((PrefetchProcessorJointNode) parentProcessorNode).getResolvedRows();
+            }
+
+            for (Object dataRow : parentDataRows) {
 
                 Expression allJoinsQualifier = null;
                 for (DbJoin join : lastDbRelationship.getJoins()) {
