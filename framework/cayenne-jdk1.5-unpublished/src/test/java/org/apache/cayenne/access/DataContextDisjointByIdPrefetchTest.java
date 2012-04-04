@@ -235,6 +235,27 @@ public class DataContextDisjointByIdPrefetchTest extends ServerCase {
         });
     }
 
+    public void testLongFlattenedRelationship() throws Exception {
+        createBagWithTwoBoxesAndPlentyOfBallsDataSet();
+
+        SelectQuery query = new SelectQuery(Bag.class);
+        query.addPrefetch(Bag.THINGS_PROPERTY)
+                .setSemantics(PrefetchTreeNode.DISJOINT_BY_ID_PREFETCH_SEMANTICS);
+        final List<Bag> result = context.performQuery(query);
+
+        queryInterceptor.runWithQueriesBlocked(new UnitTestClosure() {
+
+            public void execute() {
+                assertFalse(result.isEmpty());
+                Bag b1 = result.get(0);
+                List<?> toMany = (List<?>) b1.readPropertyDirectly(Bag.THINGS_PROPERTY);
+                assertNotNull(toMany);
+                assertFalse(((ValueHolder) toMany).isFault());
+                assertEquals(6, toMany.size());
+            }
+        });
+    }
+
     public void testMultiColumnRelationship() throws Exception {
         createBagWithTwoBoxesAndPlentyOfBallsDataSet();
 
