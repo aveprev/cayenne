@@ -19,6 +19,7 @@
 
 package org.apache.cayenne.access;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -186,6 +187,10 @@ class HierarchicalObjectResolver {
                 query.orQualifier(allJoinsQualifier);
             }
 
+            // TODO: need to pass the remaining tree to make joint prefetches work
+            // but not sure is it a good idea to do it in that way
+            query.setPrefetchTree(node);
+
             query.setFetchingDataRows(true);
             if (relationship.isSourceIndependentFromTargetChange()) {
                 // setup extra result columns to be able to relate result rows to the
@@ -261,7 +266,7 @@ class HierarchicalObjectResolver {
 
             // TODO: see TODO in ObjectResolver.relatedObjectsFromDataRows
 
-            if (node.isDisjointPrefetch() && !needToSaveDuplicates) {
+            if ((node.isDisjointPrefetch() || node.isDisjointByIdPrefetch()) && !needToSaveDuplicates) {
                 PrefetchProcessorNode processorNode = (PrefetchProcessorNode) node;
                 if (processorNode.isJointChildren()) {
                     List<Persistent> objects = processorNode.getObjects();
