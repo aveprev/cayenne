@@ -346,4 +346,22 @@ public class DataContextDisjointByIdPrefetchTest extends ServerCase {
             }
         });
     }
+
+    public void testBetweenTwoJointPrefetches() throws Exception {
+        createBagWithTwoBoxesAndPlentyOfBallsDataSet();
+
+        SelectQuery query = new SelectQuery(Bag.class);
+        query.addPrefetch(Bag.BOXES_PROPERTY).setSemantics(PrefetchTreeNode.JOINT_PREFETCH_SEMANTICS);
+        query.addPrefetch(Bag.BOXES_PROPERTY + "." + Box.BALLS_PROPERTY)
+                .setSemantics(PrefetchTreeNode.DISJOINT_BY_ID_PREFETCH_SEMANTICS);
+        query.addPrefetch(Bag.BOXES_PROPERTY + "." + Box.BALLS_PROPERTY + "." + Ball.THING_PROPERTY)
+                .setSemantics(PrefetchTreeNode.DISJOINT_BY_ID_PREFETCH_SEMANTICS);
+        query.addPrefetch(Bag.BOXES_PROPERTY + "." + Box.BALLS_PROPERTY+ "."
+                + Ball.THING_PROPERTY + "." + Thing.BALL_PROPERTY)
+                .setSemantics(PrefetchTreeNode.JOINT_PREFETCH_SEMANTICS);
+        final List<Box> result = context.performQuery(query);
+
+
+    }
+
 }
